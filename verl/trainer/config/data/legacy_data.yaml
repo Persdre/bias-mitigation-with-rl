@@ -1,0 +1,36 @@
+# Default data configuration for PPO training. Individual jobs override these fields via CLI.
+_tokenizer: null
+
+tokenizer: null
+use_shm: false
+train_files: []
+val_files: []
+prompt_key: prompt
+reward_fn_key: data_source
+max_prompt_length: 1024
+max_response_length: 1024
+train_batch_size: 8
+val_batch_size: null
+return_raw_input_ids: false
+return_raw_chat: false
+return_full_prompt: false
+shuffle: true
+validation_shuffle: false
+dataloader_num_workers: 0
+filter_overlong_prompts: false
+filter_overlong_prompts_workers: 1
+truncation: error
+image_key: images
+video_key: videos
+trust_remote_code: false
+custom_cls:
+  path: null
+  name: null
+return_multi_modal_inputs: true
+sampler:
+  class_path: null
+  class_name: null
+datagen:
+  path: null
+  name: null
+apply_chat_template_kwargs: {}
