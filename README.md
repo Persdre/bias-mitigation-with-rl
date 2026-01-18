@@ -1,6 +1,6 @@
 # Bias Mitigation with Reinforcement Learning
 
-This repository contains the open-source implementation for bias mitigation in large language models using reinforcement learning. 
+This repository contains the implementation code for bias mitigation in large language models using reinforcement learning. 
 
 ## Overview
 
