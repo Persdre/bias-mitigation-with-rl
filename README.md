@@ -1,6 +1,6 @@
 # Bias Mitigation with Reinforcement Learning
 
-This repository contains the open-source implementation for bias mitigation in large language models using reinforcement learning. This work extends the Logic-RL framework to address various cognitive biases including bandwagon bias, authority bias, position bias, and distraction bias.
+This repository contains the open-source implementation for bias mitigation in large language models using reinforcement learning. 
 
 ## Overview
 
