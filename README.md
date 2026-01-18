@@ -150,4 +150,4 @@ This work builds upon:
 
 ## License
 
-Apache License 2.0
+CC BY 4.0
