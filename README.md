@@ -135,18 +135,6 @@ The reward functions for bias mitigation are located in:
 | Training Scripts | `main_*.sh`, `train_*.sh` |
 | Evaluation Scripts | `*_scripts/eval_*.py` |
 
-## Citation
-
-If you use this code in your research, please cite:
-
-```bibtex
-@misc{bias-mitigation-rl,
-  title={Bias Mitigation with Reinforcement Learning},
-  author={Your Name},
-  year={2025},
-  url={https://github.com/your-repo/bias-mitigation-with-rl}
-}
-```
 
 ## Acknowledgements
 
