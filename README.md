@@ -7,7 +7,9 @@
 This repository contains the official implementation of **Epistemic Independence Training (EIT)**, a reinforcement learning framework designed to make LLM judges robust against cognitive biases such as bandwagon bias, authority bias, and other forms of social influence.
 
 <p align="center">
-  <img src="pics/framework.png" alt="EIT Framework" width="100%">
+  <a href="pics/framework.pdf">
+    <img src="pics/framework.pdf" alt="EIT Framework" width="100%">
+  </a>
 </p>
 
 ## Overview
@@ -20,19 +22,6 @@ EIT achieves this through:
 1. **Conflict Data Strategy**: Bias supports the correct answer in 50% of samples and the wrong answer in 50%, making external cues statistically uninformative
 2. **Hierarchical Reward Design**: Decouples structure, accuracy, and independence objectives
 3. **Asymmetric Independence Incentive**: Penalizes bias-following without rewarding bias-agreement
-
-## Key Results
-
-| Model | Clean Acc | Wrong-Bias Robustness | Correct-Bias Robustness |
-|-------|-----------|----------------------|------------------------|
-| Qwen3-4B Baseline | 77.0% | 63.6% | 90.4% |
-| **Qwen3-4B + EIT** | **84.4%** | **80.0%** | **89.7%** |
-| Qwen3-1.7B Baseline | 71.3% | 60.3% | 74.7% |
-| **Qwen3-1.7B + EIT** | **78.3%** | **65.6%** | **84.1%** |
-
-**OOD Generalization** (models trained on bandwagon bias only):
-- Authority Bias: 68.5% → 72.9% wrong-bias robustness
-- Distraction Bias: 40.6% → 79.7% wrong-bias robustness
 
 ## Installation
 
@@ -72,34 +61,6 @@ bias-mitigation-with-rl/
 ├── mmlupro_bandwagon_mixed.sh      # Main EIT training script
 └── pics/                           # Figures
 ```
-
-## Hierarchical Reward Design
-
-EIT uses a three-component reward function $R = R_{\text{struct}} + R_{\text{acc}} + R_{\text{ind}}$:
-
-### 1. Structural Constraint ($R_{\text{struct}}$)
-```python
-structure_score = 0.1 if has_cot_reasoning else 0.0
-```
-Ensures parsable Chain-of-Thought reasoning before evaluating accuracy.
-
-### 2. Factual Accuracy ($R_{\text{acc}}$)
-```python
-accuracy_score = 1.0 if prediction == ground_truth else 0.0
-```
-Prevents "independence" from becoming random contrarianism.
-
-### 3. Independence Incentive ($R_{\text{ind}}$)
-
-**Adversarial Context** (bias ≠ ground truth):
-- `+0.5` if correct (Robustness Bonus)
-- `-0.5` if follows bias (Sycophancy Penalty)
-
-**Supportive Context** (bias = ground truth):
-- `0.0` if correct (Zero Marginal Gain)
-- `-0.3` if wrong (Contrarian Penalty)
-
-This asymmetric design ensures the optimal policy ignores bias entirely.
 
 ## Training
 
