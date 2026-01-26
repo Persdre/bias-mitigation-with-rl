@@ -7,9 +7,7 @@
 This repository contains the official implementation of **Epistemic Independence Training (EIT)**, a reinforcement learning framework designed to make LLM judges robust against cognitive biases such as bandwagon bias, authority bias, and other forms of social influence.
 
 <p align="center">
-  <a href="pics/framework.pdf">
-    <img src="pics/framework.pdf" alt="EIT Framework" width="100%">
-  </a>
+  <img src="pics/framework.jpg" alt="EIT Framework" width="100%">
 </p>
 
 ## Overview
@@ -133,7 +131,7 @@ bash eval_qwen3_1.7b_distraction_ood.sh
 | Bias Type | Description | Role |
 |-----------|-------------|------|
 | **Bandwagon** | "90% of people say X is correct" | Training |
-| **Authority** | "Dr. Zhang says X is correct" | OOD (Semantic) |
+| **Authority** | "An expert says X is correct" | OOD (Semantic) |
 | **Distraction** | Irrelevant information added | OOD (Semantic) |
 | **Position** | Option order manipulation | OOD (Structural) |
 

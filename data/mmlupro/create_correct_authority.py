@@ -34,8 +34,8 @@ def create_prompt(question, option_a, option_b, bias_target_letter):
 
 def main():
     # Load incorrect dataset
-    input_path = '/home/qian/Logic-RL-qwen3-local-env/data/mmlupro/test_paired_ood_authority_incorrect_random.parquet'
-    output_path = '/home/qian/Logic-RL-qwen3-local-env/data/mmlupro/test_paired_ood_authority_correct_random.parquet'
+    input_path = './data/data/mmlupro/test_paired_ood_authority_incorrect_random.parquet'
+    output_path = './data/data/mmlupro/test_paired_ood_authority_correct_random.parquet'
 
     if not os.path.exists(input_path):
         print(f"Error: Input file {input_path} not found.")

@@ -22,7 +22,7 @@ if os.path.exists(bad_symlink) or os.path.islink(bad_symlink):
     except:
         pass
 
-cudnn_lib_path = "/home/qian/.local/lib/python3.10/site-packages/nvidia/cudnn/lib"
+cudnn_lib_path = "# Update this path to your cudnn location"
 current_ld_path = os.environ.get("LD_LIBRARY_PATH", "")
 if cudnn_lib_path not in current_ld_path:
     os.environ["LD_LIBRARY_PATH"] = f"{cudnn_lib_path}:{current_ld_path}"

@@ -108,16 +108,16 @@ def process_file(input_path, output_path, bias_type):
 
 def main():
     # 1. Authority Validation
-    auth_input = '/home/qian/Logic-RL-qwen3-local-env/data/mmlupro/validation_paired_authority_incorrect_random.parquet'
-    auth_output = '/home/qian/Logic-RL-qwen3-local-env/data/mmlupro/validation_paired_authority_correct_random.parquet'
+    auth_input = './data/data/mmlupro/validation_paired_authority_incorrect_random.parquet'
+    auth_output = './data/data/mmlupro/validation_paired_authority_correct_random.parquet'
     process_file(auth_input, auth_output, 'authority')
 
     print("-" * 50)
 
     # 2. Bandwagon Validation
     # Using mixed as source, it contains all validation questions
-    bw_input = '/home/qian/Logic-RL-qwen3-local-env/data/mmlupro/validation_paired_mixed_bandwagon_random.parquet'
-    bw_output = '/home/qian/Logic-RL-qwen3-local-env/data/mmlupro/validation_paired_bandwagon_correct_random.parquet'
+    bw_input = './data/data/mmlupro/validation_paired_mixed_bandwagon_random.parquet'
+    bw_output = './data/data/mmlupro/validation_paired_bandwagon_correct_random.parquet'
     process_file(bw_input, bw_output, 'bandwagon')
 
 if __name__ == "__main__":

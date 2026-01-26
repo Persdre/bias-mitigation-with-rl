@@ -15,7 +15,7 @@ The SFT baseline teaches models to:
 Run the data preparation script to convert bandwagon bias parquet files into SFT format:
 
 ```bash
-cd /home/qian/Logic-RL-qwen3-local-env/sft
+cd ./sft
 ./prepare_all_sft_data.sh
 ```
 
@@ -37,14 +37,14 @@ The generated parquet files contain:
 ### Qwen3-1.7B (Single GPU)
 
 ```bash
-cd /home/qian/Logic-RL-qwen3-local-env/sft
+cd ./sft
 ./train_sft_bandwagon_qwen3_1.7b.sh
 ```
 
 ### Qwen3-4B (Two GPUs)
 
 ```bash
-cd /home/qian/Logic-RL-qwen3-local-env/sft
+cd ./sft
 ./train_sft_bandwagon_qwen3_4b.sh
 ```
 
@@ -60,8 +60,8 @@ Key hyperparameters:
 - **Precision**: bf16
 
 Checkpoints are saved to:
-- Qwen3-1.7B: `/ssd2/qian/models/SFT_bandwagon/Qwen3-1.7B/run_<timestamp>`
-- Qwen3-4B: `/ssd2/qian/models/SFT_bandwagon/Qwen3-4B/run_<timestamp>`
+- Qwen3-1.7B: `/path/to/models/SFT_bandwagon/Qwen3-1.7B/run_<timestamp>`
+- Qwen3-4B: `/path/to/models/SFT_bandwagon/Qwen3-4B/run_<timestamp>`
 
 ## Evaluation
 
@@ -69,7 +69,7 @@ After training, evaluate the SFT model using the existing evaluation scripts:
 
 ```bash
 # For bandwagon bias evaluation
-cd /home/qian/Logic-RL-qwen3-local-env/bandwagon_scripts
+cd ./bandwagon_scripts
 # Update the model path in eval scripts to point to your SFT checkpoint
 ./eval_qwen3_1-7b_validation.sh
 ```

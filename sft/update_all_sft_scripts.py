@@ -72,8 +72,8 @@ def update_sft_script(filepath, bias_type, model_size):
     )
     
     # 3. Update dataset section
-    validation_dataset = f"/home/qian/Logic-RL-qwen3-local-env/data/mmlupro/{config['validation']}"
-    ood_dataset = f"/home/qian/Logic-RL-qwen3-local-env/data/mmlupro/{config['ood']}"
+    validation_dataset = f"./data/data/mmlupro/{config['validation']}"
+    ood_dataset = f"./data/data/mmlupro/{config['ood']}"
     
     # Replace single dataset with validation and OOD
     content = re.sub(
@@ -89,7 +89,7 @@ def update_sft_script(filepath, bias_type, model_size):
     # Replace output directories section
     content = re.sub(
         r'# 5\. Output directories\nBASELINE_OUTPUT_DIR="[^"]+"\nRL_OUTPUT_DIR="[^"]+"\nSFT_OUTPUT_DIR="[^"]+"',
-        f'# 4. Output directories\nBASELINE_VAL_OUTPUT_DIR="/home/qian/Logic-RL-qwen3-local-env/baseline/{base_name}_baseline"\nBASELINE_OOD_OUTPUT_DIR="/home/qian/Logic-RL-qwen3-local-env/baseline/{ood_name}_baseline"\nSFT_VAL_OUTPUT_DIR="/home/qian/Logic-RL-qwen3-local-env/baseline/{base_name}_sft"\nSFT_OOD_OUTPUT_DIR="/home/qian/Logic-RL-qwen3-local-env/baseline/{ood_name}_sft"',
+        f'# 4. Output directories\nBASELINE_VAL_OUTPUT_DIR="./data/baseline/{base_name}_baseline"\nBASELINE_OOD_OUTPUT_DIR="./data/baseline/{ood_name}_baseline"\nSFT_VAL_OUTPUT_DIR="./data/baseline/{base_name}_sft"\nSFT_OOD_OUTPUT_DIR="./data/baseline/{ood_name}_sft"',
         content
     )
     
