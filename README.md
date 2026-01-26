@@ -1,26 +1,53 @@
-# Bias Mitigation with Reinforcement Learning
+# Epistemic Independence Training (EIT)
 
-This repository contains the implementation code for bias mitigation in large language models using reinforcement learning. 
+**Mitigating Cognitive Biases in LLM Judges via Reinforcement Learning**
+
+[![License: CC BY 4.0](https://img.shields.io/badge/License-CC%20BY%204.0-lightgrey.svg)](https://creativecommons.org/licenses/by/4.0/)
+
+This repository contains the official implementation of **Epistemic Independence Training (EIT)**, a reinforcement learning framework designed to make LLM judges robust against cognitive biases such as bandwagon bias, authority bias, and other forms of social influence.
+
+<p align="center">
+  <img src="pics/framework.png" alt="EIT Framework" width="100%">
+</p>
 
 ## Overview
 
-This project implements reinforcement learning-based training to mitigate cognitive biases in LLM reasoning. The framework supports training on multiple bias types and evaluation across in-domain and out-of-domain scenarios.
+Large Language Models (LLMs) used as automated judges remain susceptible to cognitive biases—often abandoning correct reasoning when faced with social influence cues like consensus claims or authority appeals. EIT addresses this through a key insight:
 
-## Key Features
+> **Core Principle:** *To learn genuine epistemic independence, bias signals must be made uninformative for reward maximization.*
 
-- **Multiple Bias Types**: Support for bandwagon, authority, position, and distraction biases
-- **RL Training Framework**: Built on verl (Volcano Engine Reinforcement Learning)
-- **Comprehensive Evaluation**: Scripts for validation and out-of-domain evaluation
-- **Data Processing**: Tools for generating bias datasets and preprocessing
+EIT achieves this through:
+1. **Conflict Data Strategy**: Bias supports the correct answer in 50% of samples and the wrong answer in 50%, making external cues statistically uninformative
+2. **Hierarchical Reward Design**: Decouples structure, accuracy, and independence objectives
+3. **Asymmetric Independence Incentive**: Penalizes bias-following without rewarding bias-agreement
+
+## Key Results
+
+| Model | Clean Acc | Wrong-Bias Robustness | Correct-Bias Robustness |
+|-------|-----------|----------------------|------------------------|
+| Qwen3-4B Baseline | 77.0% | 63.6% | 90.4% |
+| **Qwen3-4B + EIT** | **84.4%** | **80.0%** | **89.7%** |
+| Qwen3-1.7B Baseline | 71.3% | 60.3% | 74.7% |
+| **Qwen3-1.7B + EIT** | **78.3%** | **65.6%** | **84.1%** |
+
+**OOD Generalization** (models trained on bandwagon bias only):
+- Authority Bias: 68.5% → 72.9% wrong-bias robustness
+- Distraction Bias: 40.6% → 79.7% wrong-bias robustness
 
 ## Installation
 
 ```bash
-conda create -n bias-mitigation python=3.9
+# Create conda environment
+conda create -n eit python=3.9
+conda activate eit
+
+# Install PyTorch (CUDA 12.1)
 pip install torch==2.4.0 --index-url https://download.pytorch.org/whl/cu121
+
+# Install dependencies
 pip3 install vllm==0.6.3 ray
 pip3 install flash-attn --no-build-isolation
-pip install -e .  # For verl integration
+pip install -e .  # Install verl framework
 pip install wandb IPython matplotlib
 ```
 
@@ -28,61 +55,83 @@ pip install wandb IPython matplotlib
 
 ```
 bias-mitigation-with-rl/
-├── verl/                    # Core RL framework (from verl)
-│   ├── utils/
-│   │   └── reward_score/   # Reward functions including bias mitigation rewards
-│   ├── trainer/            # Training scripts
-│   └── workers/            # Worker implementations
-├── examples/               # Example scripts and data preprocessing
-│   └── data_preprocess/   # Data generation and preprocessing for bias mitigation
-├── bandwagon_scripts/      # Bandwagon bias evaluation scripts ⭐
-├── authority_scripts/      # Authority bias evaluation scripts ⭐
-├── position_scripts/       # Position bias evaluation scripts ⭐
-├── distraction_scripts/    # Distraction bias evaluation scripts ⭐
-├── sft/                    # Supervised fine-tuning scripts for bias mitigation ⭐
-├── data/                   # Bias mitigation datasets (parquet format) ⭐
-├── train_mmlu_bandwagon.sh # Bandwagon bias training script ⭐
-├── mmlupro_bandwagon*.sh  # MMLU-Pro bandwagon training scripts ⭐
-├── tests/                  # Test suite
-└── docs/                   # Documentation
-
-⭐ = Bias mitigation specific contributions (not from original Logic-RL)
+├── verl/                           # Core RL framework (verl)
+│   └── utils/reward_score/         # Hierarchical reward functions
+│       ├── mmlupro_accuracy_independence.py  # EIT reward implementation
+│       ├── mmlupro.py              # MMLU-Pro evaluation
+│       └── ...
+├── examples/data_preprocess/       # Conflict data generation
+│   ├── mmlupro_pair_bandwagon_mixed_random.py  # Bandwagon bias (50/50 conflict)
+│   ├── anthority_bias/             # Authority bias data
+│   └── distraction_bias/           # Distraction bias data
+├── bandwagon_scripts/              # Bandwagon bias evaluation
+├── authority_scripts/              # Authority bias evaluation (OOD)
+├── position_scripts/               # Position bias evaluation (OOD)
+├── distraction_scripts/            # Distraction bias evaluation (OOD)
+├── sft/                            # SFT baseline training
+├── mmlupro_bandwagon_mixed.sh      # Main EIT training script
+└── pics/                           # Figures
 ```
 
-## Data Preparation
+## Hierarchical Reward Design
 
-The repository includes preprocessed datasets in the `data/` directory. For generating your own bias datasets:
+EIT uses a three-component reward function $R = R_{\text{struct}} + R_{\text{acc}} + R_{\text{ind}}$:
 
-### Bandwagon Bias
-```bash
-python ./examples/data_preprocess/mmlupro_pair_bandwagon_mixed_random.py
+### 1. Structural Constraint ($R_{\text{struct}}$)
+```python
+structure_score = 0.1 if has_cot_reasoning else 0.0
 ```
+Ensures parsable Chain-of-Thought reasoning before evaluating accuracy.
 
-### Authority Bias
-```bash
-python ./examples/data_preprocess/anthority_bias/mmlupro_pair_authority_mixed_random.py
+### 2. Factual Accuracy ($R_{\text{acc}}$)
+```python
+accuracy_score = 1.0 if prediction == ground_truth else 0.0
 ```
+Prevents "independence" from becoming random contrarianism.
 
-### Position Bias
-```bash
-python ./examples/data_preprocess/mmlupro.py --position_bias
-```
+### 3. Independence Incentive ($R_{\text{ind}}$)
 
-### Distraction Bias
-```bash
-python ./examples/data_preprocess/distraction_bias/mmlupro_pair_distraction_mixed_random.py
-```
+**Adversarial Context** (bias ≠ ground truth):
+- `+0.5` if correct (Robustness Bonus)
+- `-0.5` if follows bias (Sycophancy Penalty)
+
+**Supportive Context** (bias = ground truth):
+- `0.0` if correct (Zero Marginal Gain)
+- `-0.3` if wrong (Contrarian Penalty)
+
+This asymmetric design ensures the optimal policy ignores bias entirely.
 
 ## Training
 
-### Bias Mitigation Training Scripts
-- `train_mmlu_bandwagon.sh` - Bandwagon bias training on MMLU dataset
-- `mmlupro_bandwagon.sh` - Bandwagon bias training on MMLU-Pro dataset
-- `mmlupro_bandwagon_mixed.sh` - Mixed bandwagon bias training on MMLU-Pro
+### EIT Training (Conflict Data Strategy)
 
-**Note**: The `main_grpo.sh` and `main_4grpo_7b_*.sh` scripts are from the original Logic-RL framework for math reasoning tasks (K&K puzzles), not part of the bias mitigation contribution.
+```bash
+# Train with 50/50 correct/wrong bias (conflict strategy)
+bash mmlupro_bandwagon_mixed.sh
+```
 
-### SFT Training
+Key training configuration:
+- Base model: Qwen3-4B or Qwen3-1.7B
+- Algorithm: GRPO (Group Relative Policy Optimization)
+- Data: MMLU-Pro with injected bandwagon bias (50% correct, 50% wrong)
+
+### Data Preparation
+
+Generate conflict data for training:
+
+```bash
+# Bandwagon bias (training)
+python examples/data_preprocess/mmlupro_pair_bandwagon_mixed_random.py
+
+# Authority bias (OOD evaluation)
+python examples/data_preprocess/anthority_bias/mmlupro_pair_authority_mixed_random.py
+
+# Distraction bias (OOD evaluation)
+python examples/data_preprocess/distraction_bias/mmlupro_pair_distraction_mixed_random.py
+```
+
+### SFT Baseline
+
 ```bash
 cd sft
 bash train_sft_bandwagon_qwen3_1.7b.sh
@@ -90,64 +139,50 @@ bash train_sft_bandwagon_qwen3_1.7b.sh
 
 ## Evaluation
 
-### Bandwagon Bias Evaluation
+### In-Domain (Bandwagon Bias)
+
 ```bash
 cd bandwagon_scripts
+
+# Validation set
 bash eval_qwen3_1.7b_correct_bandwagon_validation.sh
+
+# OOD test set
 bash eval_qwen3_1.7b_correct_bandwagon_ood.sh
 ```
 
-### Authority Bias Evaluation
+### Out-of-Domain Transfer
+
 ```bash
+# Authority bias
 cd authority_scripts
-bash eval_qwen3_1.7b_correct_authority_validation.sh
 bash eval_qwen3_1.7b_correct_authority_ood.sh
-```
 
-### Position Bias Evaluation
-```bash
+# Position bias
 cd position_scripts
-bash eval_qwen3_1.7b_position_validation.sh
 bash eval_qwen3_1.7b_position_ood.sh
-```
 
-### Distraction Bias Evaluation
-```bash
+# Distraction bias
 cd distraction_scripts
-bash eval_qwen3_1.7b_distraction_validation.sh
 bash eval_qwen3_1.7b_distraction_ood.sh
 ```
 
-## Reward Functions
+## Bias Types
 
-The reward functions for bias mitigation are located in:
-- `verl/utils/reward_score/mmlu_bandwagon_bias.py` - Bandwagon bias reward
-- `verl/utils/reward_score/gsm8k_authority_bias.py` - Authority bias reward
-- `verl/utils/reward_score/mmlupro.py` - MMLU-Pro reward functions
-- `verl/utils/reward_score/mmlupro_accuracy_independence.py` - Accuracy independence metrics
-
-## Implementation Details
-
-| Component | Location |
-|-----------|----------|
-| Reward Modeling | `verl/utils/reward_score/` |
-| Data Preprocessing | `examples/data_preprocess/` |
-| Training Scripts | `main_*.sh`, `train_*.sh` |
-| Evaluation Scripts | `*_scripts/eval_*.py` |
+| Bias Type | Description | Role |
+|-----------|-------------|------|
+| **Bandwagon** | "90% of people say X is correct" | Training |
+| **Authority** | "Dr. Zhang says X is correct" | OOD (Semantic) |
+| **Distraction** | Irrelevant information added | OOD (Semantic) |
+| **Position** | Option order manipulation | OOD (Structural) |
 
 
 ## Acknowledgements
 
 This work builds upon:
-- [Verl](https://github.com/volcengine/verl) - Volcano Engine Reinforcement Learning framework
-- [Logic-RL](https://github.com/Unakar/Logic-RL) - Rule-based reinforcement learning for LLM reasoning
-
-**Note**: This repository includes the verl framework and some Logic-RL training scripts for reference. The bias mitigation contributions include:
-- Bias-specific reward functions
-- Bias dataset generation and preprocessing scripts
-- Bias evaluation scripts for all bias types
-- Bias mitigation training scripts
+- [verl](https://github.com/volcengine/verl) - Volcano Engine Reinforcement Learning framework
+- [MMLU-Pro](https://github.com/TIGER-AI-Lab/MMLU-Pro) - Multi-task Language Understanding benchmark
 
 ## License
 
-CC BY 4.0
+This project is licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).

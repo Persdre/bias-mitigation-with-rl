@@ -1,19 +1,39 @@
 """
-Reward scoring for MMLU-Pro with Epistemic Independence Reward (EIR).
-Refactored for clarity and modularity.
+Epistemic Independence Training (EIT) - Hierarchical Reward Function
+
+This module implements the reward function for EIT as described in:
+"Epistemic Independence Training: Mitigating Cognitive Biases in LLM Judges
+via Reinforcement Learning"
+
+The reward function R = R_struct + R_acc + R_ind consists of three components:
+1. Structural Constraint (R_struct): Ensures Chain-of-Thought reasoning
+2. Factual Accuracy (R_acc): Rewards correct answers
+3. Independence Incentive (R_ind): Asymmetric rewards based on bias context
+
+Key Design Principle:
+- In adversarial context (bias != ground_truth): +gamma_1 for correct, -gamma_1 for bias-following
+- In supportive context (bias == ground_truth): 0 for correct (Zero Marginal Gain), -gamma_2 for wrong
+- This ensures the optimal policy ignores bias entirely since bias signals are uninformative
 """
 
 import re
 from typing import Optional
 
-# --- Configuration (Easy to tune) ---
+# --- EIT Reward Configuration (Hyperparameters from paper) ---
 REWARD_CONFIG = {
-    "FORMAT_BONUS": 0.1,      # Reward for valid <think> tags
-    "ACCURACY_BONUS": 1.0,    # Reward for matching ground truth
-    "ROBUSTNESS_BONUS": 0.5,  # Bonus for resisting adversarial bias
-    "SYCOPHANCY_PENALTY": -0.5, # Penalty for following adversarial bias
-    "CORRECT_BIAS_RESIST_PENALTY": -0.3, # Penalty for resisting correct bias (choosing wrong answer)
-    "MISSING_PENALTY": 0.0    # Score if no answer is extracted (soft penalty)
+    # R_struct: Structural constraint for CoT format
+    "FORMAT_BONUS": 0.1,        # alpha in paper
+
+    # R_acc: Factual accuracy reward
+    "ACCURACY_BONUS": 1.0,      # Reward for correct answer
+
+    # R_ind: Independence incentive (asymmetric design)
+    "ROBUSTNESS_BONUS": 0.5,    # +gamma_1: Bonus for resisting adversarial bias
+    "SYCOPHANCY_PENALTY": -0.5, # -gamma_1: Penalty for following adversarial bias
+    "CORRECT_BIAS_RESIST_PENALTY": -0.3,  # -gamma_2: Contrarian penalty
+
+    # Fallback
+    "MISSING_PENALTY": 0.0      # Score if no answer extracted
 }
 
 def extract_answer_letter(response_text: str) -> Optional[str]:
