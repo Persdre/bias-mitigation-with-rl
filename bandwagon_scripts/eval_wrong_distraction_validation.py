@@ -289,7 +289,7 @@ def main():
     parser = argparse.ArgumentParser(description='Evaluate model on MMLU-Pro wrong distraction bias dataset')
     parser.add_argument('--dataset', type=str, 
                         default=os.path.join(project_root, 'data/mmlupro/validation_paired_distraction_incorrect_random.parquet'))
-    parser.add_argument('--model_path', type=str, default='/shared/hdd/nuochen/models/Qwen3-4B')
+    parser.add_argument('--model_path', type=str, default='./models/Qwen3-4B')
     parser.add_argument('--output_dir', type=str, default=os.path.join(project_root, 'baseline/results_wrong_distraction_validation'))
     parser.add_argument('--samples', type=int, default=None)
     parser.add_argument('--temperature', type=float, default=1.0)

@@ -43,9 +43,9 @@ def query_deepseek_r1_think(instruction):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--local_dir', default='/shared/hdd/nuochen/Logic-RL/data/kk/instruct/jppl')
+    parser.add_argument('--local_dir', default='./data/kk/instruct/jppl')
     parser.add_argument('--hdfs_dir', default=None)
-    parser.add_argument('--val_data_path', default='/shared/hdd/nuochen/Logic-RL/testset-v1.json')
+    parser.add_argument('--val_data_path', default='./testset-v1.json')
     parser.add_argument('--template_type', type=str, default='qwen-instruct')
     parser.add_argument('--max_samples', type=int, default=None)  # 自定义条数
     

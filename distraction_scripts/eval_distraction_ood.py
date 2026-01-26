@@ -426,7 +426,7 @@ def main():
     parser = argparse.ArgumentParser(description='Evaluate model on MMLU-Pro out-of-domain distraction bias dataset')
     parser.add_argument('--dataset', type=str, 
                         default=os.path.join(project_root, 'data/mmlupro/test_paired_ood_distraction_incorrect_random.parquet'))
-    parser.add_argument('--model_path', type=str, default='/shared/hdd/nuochen/models/Qwen3-4B')
+    parser.add_argument('--model_path', type=str, default='./models/Qwen3-4B')
     parser.add_argument('--output_dir', type=str, default=os.path.join(project_root, 'baseline/results_distraction_ood'))
     parser.add_argument('--subjects', type=str, default='economics,psychology,biology,business',
                         help='Comma-separated list of subjects to evaluate on')

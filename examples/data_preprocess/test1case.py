@@ -65,7 +65,7 @@ def query_deepseek_r1_think(instruction):
 
 def query_grpo_model(instruction):
     # 加载模型和分词器
-    model_path = "/disk1/nuochen/models/GRPO_logic_KK_321/base_reward_w_length/actor/global_step_500/"
+    model_path = "./models/GRPO_logic_KK_321/base_reward_w_length/actor/global_step_500/"
     tokenizer = AutoTokenizer.from_pretrained(model_path)
     model = AutoModelForCausalLM.from_pretrained(model_path)
 
@@ -77,9 +77,9 @@ def query_grpo_model(instruction):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--local_dir', default='/shared/hdd/nuochen/Logic-RL/data/kk/instruct/jppl')
+    parser.add_argument('--local_dir', default='./data/kk/instruct/jppl')
     parser.add_argument('--hdfs_dir', default=None)
-    parser.add_argument('--val_data_path', default='/shared/hdd/nuochen/Logic-RL/testset-v1.json')
+    parser.add_argument('--val_data_path', default='./testset-v1.json')
     parser.add_argument('--template_type', type=str, default='qwen-instruct')
     parser.add_argument('--max_samples', type=int, default=None)  # 自定义条数
     
@@ -91,7 +91,7 @@ if __name__ == '__main__':
         test_dataset = test_dataset[:args.max_samples]
 
     # 调用指定模型并输出答案
-    model_path = "/disk1/nuochen/models/GRPO_logic_KK_321/base_reward_w_length/actor/global_step_500/"
+    model_path = "./models/GRPO_logic_KK_321/base_reward_w_length/actor/global_step_500/"
     for idx, example in enumerate(test_dataset):
         instruction = make_prefix(example, template_type=args.template_type)
         output = query_deepseek_r1_think(instruction)  # 调用模型生成答案

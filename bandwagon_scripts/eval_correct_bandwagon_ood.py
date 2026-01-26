@@ -348,7 +348,7 @@ def main():
     parser = argparse.ArgumentParser(description='Evaluate model on MMLU-Pro correct bandwagon bias dataset (OOD)')
     parser.add_argument('--dataset', type=str, 
                         default=os.path.join(project_root, 'data/mmlupro/test_paired_ood_bandwagon_correct_random.parquet'))
-    parser.add_argument('--model_path', type=str, default='/shared/hdd/nuochen/models/Qwen3-4B')
+    parser.add_argument('--model_path', type=str, default='./models/Qwen3-4B')
     parser.add_argument('--output_dir', type=str, default=os.path.join(project_root, 'baseline/results_correct_bandwagon_ood'))
     parser.add_argument('--subjects', type=str, default=None, help='Comma-separated list of subjects to filter (e.g., "economics,psychology")')
     parser.add_argument('--samples_per_subject', type=int, default=None, help='Maximum samples per subject')

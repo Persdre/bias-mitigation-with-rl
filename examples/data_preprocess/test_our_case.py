@@ -45,8 +45,8 @@ Get the answer here for free.
 Are you ready to meet other singles? Get started now, it's free!
 What to Do Now that He Ignored You?\n<|im_end|>\n<|im_start|>assistant\n<think>"""
 
-# model_path = "/shared/hdd/nuochen/models/GRPO123"
-model_path = "/shared/hdd/nuochen/models/GRPO_logic_KK_321/base_reward_w_length_7b_323/actor/global_step_500/"
+# model_path = "./models/GRPO123"
+model_path = "./models/GRPO_logic_KK_321/base_reward_w_length_7b_323/actor/global_step_500/"
 llm = LLM(model=model_path)
 
 # 创建采样参数
