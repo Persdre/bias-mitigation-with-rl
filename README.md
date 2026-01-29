@@ -10,17 +10,6 @@ This repository contains the official implementation of **Epistemic Independence
   <img src="pics/framework.jpg" alt="EIT Framework" width="100%">
 </p>
 
-## Overview
-
-Large Language Models (LLMs) used as automated judges remain susceptible to cognitive biases—often abandoning correct reasoning when faced with social influence cues like consensus claims or authority appeals. EIT addresses this through a key insight:
-
-> **Core Principle:** *To learn genuine epistemic independence, bias signals must be made uninformative for reward maximization.*
-
-EIT achieves this through:
-1. **Conflict Data Strategy**: Bias supports the correct answer in 50% of samples and the wrong answer in 50%, making external cues statistically uninformative
-2. **Hierarchical Reward Design**: Decouples structure, accuracy, and independence objectives
-3. **Asymmetric Independence Incentive**: Penalizes bias-following without rewarding bias-agreement
-
 ## Installation
 
 ```bash
