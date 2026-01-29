@@ -54,18 +54,12 @@ bias-mitigation-with-rl/
 ### EIT Training (Conflict Data Strategy)
 
 ```bash
-# Train with 50/50 correct/wrong bias (conflict strategy)
 bash mmlupro_bandwagon_mixed.sh
 ```
 
-Key training configuration:
-- Base model: Qwen3-4B or Qwen3-1.7B
-- Algorithm: GRPO (Group Relative Policy Optimization)
-- Data: MMLU-Pro with injected bandwagon bias (50% correct, 50% wrong)
-
 ### Data Preparation
 
-Generate conflict data for training:
+Generate data for training:
 
 ```bash
 # Bandwagon bias (training)
