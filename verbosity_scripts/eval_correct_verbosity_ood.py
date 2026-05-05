@@ -228,7 +228,7 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--dataset', type=str,
                         default=os.path.join(project_root, 'data/mmlupro/test_paired_ood_verbosity_correct_random.parquet'))
-    parser.add_argument('--model_path', type=str, default='/shared/hdd/nuochen/models/Qwen3-4B')
+    parser.add_argument('--model_path', type=str, default='Qwen/Qwen3-4B')
     parser.add_argument('--output_dir', type=str,
                         default=os.path.join(project_root, 'baseline/results_correct_verbosity_ood'))
     parser.add_argument('--subjects', type=str, default='economics,psychology,biology,business')

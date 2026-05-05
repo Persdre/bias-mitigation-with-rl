@@ -2,7 +2,10 @@
 """Extract verbosity val results across 3 seeds (42, 0, 1) and report per-seed + mean."""
 import json, glob, os, statistics
 
-P = '/ssd3/qian/bias-mitigation-with-rl/baseline'
+P = os.environ.get(
+    'EIT_BASELINE_DIR',
+    os.path.join(os.path.dirname(os.path.abspath(__file__)), 'baseline'),
+)
 
 # (size_label, method_label, w_dir_template, c_dir_template, key_w, key_c, mit_filter)
 # Templates use {seed_suffix} where seed=42 has empty suffix and seeds 0/1 have "_seedN_"

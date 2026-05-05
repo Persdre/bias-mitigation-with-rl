@@ -2,7 +2,10 @@
 """Extract verbosity val + test results into a clean summary for filling LaTeX tables."""
 import json, glob, os, sys
 
-P = '/ssd3/qian/bias-mitigation-with-rl/baseline'
+P = os.environ.get(
+    'EIT_BASELINE_DIR',
+    os.path.join(os.path.dirname(os.path.abspath(__file__)), 'baseline'),
+)
 
 # Each entry: (label, dir, key_prefix_or_None_if_promptmit)
 # key_prefix tells us which fields to read (incorrect_verbosity_* or correct_verbosity_*)
