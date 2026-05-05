@@ -125,3 +125,14 @@ data/**/*.json
 data/**/*.jsonl
 # Keep data directory structure but ignore contents
 !data/.gitkeep
+
+# Bias types not reported in the paper (kept local for future work)
+anchoring_scripts/
+evidence_scripts/
+sentiment_scripts/
+examples/data_preprocess/anchoring_bias/
+examples/data_preprocess/evidence_bias/
+examples/data_preprocess/sentiment_bias/
+
+# Local result artifacts (not published)
+baseline/

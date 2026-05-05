@@ -42,8 +42,8 @@ bias-mitigation-with-rl/
 │   └── distraction_bias/           # Distraction bias data
 ├── bandwagon_scripts/              # Bandwagon bias evaluation
 ├── authority_scripts/              # Authority bias evaluation (OOD)
-├── position_scripts/               # Position bias evaluation (OOD)
 ├── distraction_scripts/            # Distraction bias evaluation (OOD)
+├── verbosity_scripts/              # Verbosity bias evaluation (OOD)
 ├── sft/                            # SFT baseline training
 ├── mmlupro_bandwagon_mixed.sh      # Main EIT training script
 └── pics/                           # Figures
@@ -70,6 +70,9 @@ python examples/data_preprocess/anthority_bias/mmlupro_pair_authority_mixed_rand
 
 # Distraction bias (OOD evaluation)
 python examples/data_preprocess/distraction_bias/mmlupro_pair_distraction_mixed_random.py
+
+# Verbosity bias (OOD evaluation)
+python examples/data_preprocess/verbosity_bias/mmlupro_pair_verbosity_mixed_random.py
 ```
 
 ### SFT Baseline
@@ -100,13 +103,13 @@ bash eval_qwen3_1.7b_correct_bandwagon_ood.sh
 cd authority_scripts
 bash eval_qwen3_1.7b_correct_authority_ood.sh
 
-# Position bias
-cd position_scripts
-bash eval_qwen3_1.7b_position_ood.sh
-
 # Distraction bias
 cd distraction_scripts
 bash eval_qwen3_1.7b_distraction_ood.sh
+
+# Verbosity bias
+cd verbosity_scripts
+bash eval_verbosity_ood.py --model_path <path-to-model>
 ```
 
 ## Bias Types
@@ -114,9 +117,9 @@ bash eval_qwen3_1.7b_distraction_ood.sh
 | Bias Type | Description | Role |
 |-----------|-------------|------|
 | **Bandwagon** | "90% of people say X is correct" | Training |
-| **Authority** | "An expert says X is correct" | OOD (Semantic) |
-| **Distraction** | Irrelevant information added | OOD (Semantic) |
-| **Position** | Option order manipulation | OOD (Structural) |
+| **Authority** | "An expert says X is correct" | OOD (Content) |
+| **Distraction** | Irrelevant information added | OOD (Content) |
+| **Verbosity** | Plausible-sounding elaboration appended to one option | OOD (Style) |
 
 
 ## Acknowledgements

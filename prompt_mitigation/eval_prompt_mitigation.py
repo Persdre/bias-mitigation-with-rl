@@ -131,13 +131,14 @@ def extract_answer(response_text):
     
     return None
 
-def get_model_response(llm, prompt, max_new_tokens=1024, temperature=0.7):
+def get_model_response(llm, prompt, max_new_tokens=1024, temperature=0.7, sampling_seed=None):
     """Get response from the model using vLLM"""
     try:
         sampling_params = SamplingParams(
             temperature=temperature,
             max_tokens=max_new_tokens,
-            stop=None
+            stop=None,
+            seed=sampling_seed,
         )
         outputs = llm.generate([prompt], sampling_params)
         generated_text = outputs[0].outputs[0].text
@@ -188,7 +189,7 @@ def load_dataset_from_parquet(parquet_path, subjects=None, num_samples=None, sam
     
     return dataset
 
-def evaluate_mitigation(llm, dataset, model_name, output_file, use_mitigation=False, temperature=0.7):
+def evaluate_mitigation(llm, dataset, model_name, output_file, use_mitigation=False, temperature=0.7, sampling_seed=None):
     """Evaluate model with/without mitigation"""
     results = []
     
@@ -235,7 +236,7 @@ def evaluate_mitigation(llm, dataset, model_name, output_file, use_mitigation=Fa
         
         # 1. Regular prompt (Clean)
         regular_prompt = generate_regular_prompt(question, option_a_text, option_b_text, use_mitigation)
-        regular_response = get_model_response(llm, regular_prompt, temperature=temperature)
+        regular_response = get_model_response(llm, regular_prompt, temperature=temperature, sampling_seed=sampling_seed)
         regular_answer = extract_answer(regular_response)
         
         result["regular_response"] = regular_response if regular_response else ""
@@ -248,7 +249,7 @@ def evaluate_mitigation(llm, dataset, model_name, output_file, use_mitigation=Fa
         # 2. Bias prompt (from dataset)
         bias_prompt_chat = item['prompt']
         bias_prompt = chat_format_to_prompt(bias_prompt_chat, use_mitigation)
-        bias_response = get_model_response(llm, bias_prompt, temperature=temperature)
+        bias_response = get_model_response(llm, bias_prompt, temperature=temperature, sampling_seed=sampling_seed)
         bias_answer = extract_answer(bias_response)
         
         result["bias_response"] = bias_response if bias_response else ""
@@ -327,6 +328,8 @@ def main():
     parser.add_argument('--samples', type=int, default=None)
     parser.add_argument('--samples_per_subject', type=int, default=None)
     parser.add_argument('--temperature', type=float, default=1.0)
+    parser.add_argument('--sampling_seed', type=int, default=None,
+                        help='Optional vLLM sampling seed for reproducibility across runs.')
     parser.add_argument('--gpu_ids', type=str, default='0')
     parser.add_argument('--tensor_parallel_size', type=int, default=1)
     parser.add_argument('--max_model_len', type=int, default=4096)
@@ -372,8 +375,9 @@ def main():
         output_file = os.path.join(args.output_dir, f"{model_name_short}_{mitigation_str}_{timestamp}.json")
         
         summary = evaluate_mitigation(
-            llm, dataset, model_name_short, output_file, 
-            use_mitigation=mode, temperature=args.temperature
+            llm, dataset, model_name_short, output_file,
+            use_mitigation=mode, temperature=args.temperature,
+            sampling_seed=args.sampling_seed,
         )
         results_list.append(summary)
         
