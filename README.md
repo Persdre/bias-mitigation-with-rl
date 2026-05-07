@@ -1,4 +1,4 @@
-# Treat Bias as Noise: Bias-Robust LLM Reasoning via Reinforcement Learning
+# Treat Bias as Noise: Training Bias-Robust LLM Reasoning via Reinforcement Learning
 
 **Official implementation of Epistemic Independence Training (EIT)**
 
@@ -7,7 +7,7 @@
 This repository contains the official implementation of **EIT**, a reinforcement learning framework that treats spurious prompt-level cues (bandwagon, authority, distraction, verbosity) as noise to be filtered out, training LLMs to reason robustly under cognitive bias rather than follow surface cues.
 
 <p align="center">
-  <img src="pics/framework.jpg" alt="EIT Framework" width="100%">
+  <img src="pics/framework_1.jpg" alt="EIT Framework" width="100%">
 </p>
 
 ## Installation
