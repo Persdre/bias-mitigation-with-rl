@@ -33,8 +33,7 @@ pip install wandb IPython matplotlib
 bias-mitigation-with-rl/
 ├── verl/                           # Core RL framework (verl)
 │   └── utils/reward_score/         # Hierarchical reward functions
-│       ├── mmlupro_accuracy_independence.py  # EIT reward implementation
-│       ├── mmlupro.py              # MMLU-Pro evaluation
+│       ├── mmlupro.py              # MMLU-Pro hierarchical reward (EIT)
 │       └── ...
 ├── examples/data_preprocess/       # Conflict data generation
 │   ├── mmlupro_pair_bandwagon_mixed_random.py  # Bandwagon bias (50/50 conflict)
@@ -44,22 +43,13 @@ bias-mitigation-with-rl/
 ├── authority_scripts/              # Authority bias evaluation (OOD)
 ├── distraction_scripts/            # Distraction bias evaluation (OOD)
 ├── verbosity_scripts/              # Verbosity bias evaluation (OOD)
-├── sft/                            # SFT baseline training
-├── mmlupro_bandwagon_mixed.sh      # Main EIT training script
+├── sft/                            # SFT baseline (data prep + training)
 └── pics/                           # Figures
 ```
 
-## Training
+## Data Preparation
 
-### EIT Training (Conflict Data Strategy)
-
-```bash
-bash mmlupro_bandwagon_mixed.sh
-```
-
-### Data Preparation
-
-Generate data for training:
+Generate the bandwagon training set and OOD evaluation sets:
 
 ```bash
 # Bandwagon bias (training)
@@ -75,42 +65,59 @@ python examples/data_preprocess/distraction_bias/mmlupro_pair_distraction_mixed_
 python examples/data_preprocess/verbosity_bias/mmlupro_pair_verbosity_mixed_random.py
 ```
 
+## Training
+
+### EIT (GRPO + balanced conflict + bias-aware reward)
+
+EIT training uses the `verl` framework with the EIT reward registered for `TIGER-Lab/MMLU-Pro` (see `verl/utils/reward_score/mmlupro.py`). Launch GRPO via verl's PPO trainer entry point:
+
+```bash
+python3 -m verl.trainer.main_ppo \
+    algorithm.adv_estimator=grpo \
+    data.train_files=./data/mmlupro/train_paired_bandwagon_mixed_random.parquet \
+    data.val_files=./data/mmlupro/validation_paired_bandwagon_mixed_random.parquet \
+    actor_rollout_ref.model.path=Qwen/Qwen3-4B \
+    trainer.n_gpus_per_node=8 \
+    trainer.experiment_name=eit_qwen3_4b_bandwagon
+    # See verl docs for the full set of trainer flags.
+```
+
+Replace `Qwen/Qwen3-4B` with `Qwen/Qwen3-1.7B` for the smaller model. The reward function (`mmlupro.py`) implements the hierarchical reward $R = R_\text{struct} + R_\text{acc} + R_\text{ind}$ described in the paper, with the asymmetric bias-following penalty.
+
 ### SFT Baseline
+
+See `sft/README.md`. Data prep:
 
 ```bash
 cd sft
-bash train_sft_bandwagon_qwen3_1.7b.sh
+python prepare_sft_data_from_bandwagon.py \
+    --input ../data/mmlupro/train_paired_bandwagon_mixed_random.parquet \
+    --output data/sft_train_incorrect_bandwagon.parquet \
+    --bias_types incorrect_bandwagon
 ```
+
+Training uses verl's SFT entry point (`verl.trainer.fsdp_sft_trainer`) — see verl docs for full args.
 
 ## Evaluation
 
-### In-Domain (Bandwagon Bias)
+All evaluation scripts are Python and use `argparse` with sensible defaults (`./models/Qwen3-4B`, `./data/mmlupro/...`). Override `--model_path` to point at your trained checkpoint.
 
 ```bash
-cd bandwagon_scripts
+# In-domain (bandwagon)
+python bandwagon_scripts/eval_correct_bandwagon_validation.py --model_path <ckpt>
+python bandwagon_scripts/eval_correct_bandwagon_ood.py        --model_path <ckpt>
 
-# Validation set
-bash eval_qwen3_1.7b_correct_bandwagon_validation.sh
+# OOD: authority
+python authority_scripts/eval_correct_authority_ood.py --model_path <ckpt>
 
-# OOD test set
-bash eval_qwen3_1.7b_correct_bandwagon_ood.sh
+# OOD: distraction
+python distraction_scripts/eval_distraction_ood.py --model_path <ckpt>
+
+# OOD: verbosity
+python verbosity_scripts/eval_verbosity_ood.py --model_path <ckpt>
 ```
 
-### Out-of-Domain Transfer
-
-```bash
-# Authority bias
-cd authority_scripts
-bash eval_qwen3_1.7b_correct_authority_ood.sh
-
-# Distraction bias
-cd distraction_scripts
-bash eval_qwen3_1.7b_distraction_ood.sh
-
-# Verbosity bias
-cd verbosity_scripts
-bash eval_verbosity_ood.py --model_path <path-to-model>
-```
+If your environment needs cuDNN on `LD_LIBRARY_PATH`, set `CUDNN_LIB_PATH=/path/to/cudnn/lib` before running — the eval scripts will pick it up automatically.
 
 ## Bias Types
 

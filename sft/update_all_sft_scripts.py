@@ -37,10 +37,15 @@ BIAS_CONFIGS = {
         'ood': 'test_paired_ood_distraction_incorrect_random.parquet',
         'eval_script': 'eval_wrong_distraction_validation.py'
     },
-    'position_bias': {
-        'validation': 'validation_paired_position_bias_random.parquet',
-        'ood': 'test_paired_ood_position_bias_random.parquet',
-        'eval_script': 'eval_position_bias_validation.py'
+    'wrong_verbosity': {
+        'validation': 'validation_paired_verbosity_incorrect_random.parquet',
+        'ood': 'test_paired_ood_verbosity_incorrect_random.parquet',
+        'eval_script': 'eval_wrong_verbosity_validation.py'
+    },
+    'correct_verbosity': {
+        'validation': 'validation_paired_verbosity_correct_random.parquet',
+        'ood': 'test_paired_ood_verbosity_correct_random.parquet',
+        'eval_script': 'eval_correct_verbosity_validation.py'
     }
 }
 
@@ -181,9 +186,10 @@ echo "✅ All evaluations completed!"''',
     )
     
     # 8. Update eval script name in SFT validation section
+    eval_script = config["eval_script"]
     content = re.sub(
         r'CMD="python3 eval_[^"]+_validation\.py"',
-        f'CMD="python3 {config[\"eval_script\"]}"',
+        f'CMD="python3 {eval_script}"',
         content,
         count=1  # Only replace the first occurrence (baseline)
     )

@@ -12,18 +12,34 @@ The SFT baseline teaches models to:
 
 ### Step 1: Prepare SFT Training Data
 
-Run the data preparation script to convert bandwagon bias parquet files into SFT format:
+Convert bandwagon bias parquet files into SFT format using `prepare_sft_data_from_bandwagon.py`:
 
 ```bash
 cd ./sft
-./prepare_all_sft_data.sh
+
+# Resistance (incorrect bandwagon)
+python prepare_sft_data_from_bandwagon.py \
+    --input ../data/mmlupro/train_paired_bandwagon_mixed_random.parquet \
+    --output data/sft_train_incorrect_bandwagon.parquet \
+    --bias_types incorrect_bandwagon
+
+# Following (correct bandwagon, optional)
+python prepare_sft_data_from_bandwagon.py \
+    --input ../data/mmlupro/train_paired_bandwagon_mixed_random.parquet \
+    --output data/sft_train_correct_bandwagon.parquet \
+    --bias_types correct_bandwagon
+
+# Mixed
+python prepare_sft_data_from_bandwagon.py \
+    --input ../data/mmlupro/train_paired_bandwagon_mixed_random.parquet \
+    --output data/sft_train_mixed_bandwagon.parquet \
+    --bias_types incorrect_bandwagon,correct_bandwagon
 ```
 
-This will generate:
-- `data/sft_train_incorrect_bandwagon.parquet` - Training data with incorrect bandwagon (teaches resistance)
-- `data/sft_train_correct_bandwagon.parquet` - Training data with correct bandwagon (teaches following)
-- `data/sft_train_mixed_bandwagon.parquet` - Training data with both types
-- `data/sft_val_all.parquet` - Validation data for evaluation
+Outputs:
+- `data/sft_train_incorrect_bandwagon.parquet` — teaches resistance to wrong-bias
+- `data/sft_train_correct_bandwagon.parquet` — teaches following correct-bias
+- `data/sft_train_mixed_bandwagon.parquet` — both
 
 ### Step 2: Verify Data Format
 
@@ -34,44 +50,43 @@ The generated parquet files contain:
 
 ## Training
 
-### Qwen3-1.7B (Single GPU)
+SFT uses verl's FSDP SFT trainer. Launch directly via Python (replace model path and dataset for the desired model size):
 
 ```bash
-cd ./sft
-./train_sft_bandwagon_qwen3_1.7b.sh
+# Qwen3-1.7B
+python3 -m verl.trainer.fsdp_sft_trainer \
+    data.train_files=./data/sft_train_incorrect_bandwagon.parquet \
+    data.val_files=./data/sft_val_all.parquet \
+    model.partial_pretrain=Qwen/Qwen3-1.7B \
+    optim.lr=2e-5 \
+    data.train_batch_size=64 \
+    data.micro_batch_size_per_gpu=4 \
+    trainer.total_epochs=3 \
+    data.max_length=1024 \
+    trainer.experiment_name=sft_bandwagon_qwen3_1.7b
 ```
 
-### Qwen3-4B (Two GPUs)
-
-```bash
-cd ./sft
-./train_sft_bandwagon_qwen3_4b.sh
-```
+For Qwen3-4B set `model.partial_pretrain=Qwen/Qwen3-4B` and `data.train_batch_size=128` across two GPUs. See verl docs for the full set of trainer flags (FSDP, gradient checkpointing, LoRA).
 
 ### Training Configuration
 
-Key hyperparameters:
 - **Learning rate**: 2e-5
 - **Batch size**: 64 (1.7B) / 128 (4B)
 - **Micro batch size per GPU**: 4
 - **Epochs**: 3
 - **Max length**: 1024
-- **Optimizer**: AdamW with cosine learning rate schedule
+- **Optimizer**: AdamW with cosine LR schedule
 - **Precision**: bf16
 
-Checkpoints are saved to:
-- Qwen3-1.7B: `/path/to/models/SFT_bandwagon/Qwen3-1.7B/run_<timestamp>`
-- Qwen3-4B: `/path/to/models/SFT_bandwagon/Qwen3-4B/run_<timestamp>`
+Set `trainer.default_local_dir=./checkpoints/SFT_bandwagon/<model>` (or the verl default) to control checkpoint location.
 
 ## Evaluation
 
-After training, evaluate the SFT model using the existing evaluation scripts:
+After training, evaluate the SFT checkpoint using the bias-specific Python eval scripts (each uses `argparse`; pass `--model_path` to your SFT checkpoint):
 
 ```bash
-# For bandwagon bias evaluation
-cd ./bandwagon_scripts
-# Update the model path in eval scripts to point to your SFT checkpoint
-./eval_qwen3_1-7b_validation.sh
+python ../bandwagon_scripts/eval_correct_bandwagon_validation.py --model_path <sft-ckpt>
+python ../bandwagon_scripts/eval_correct_bandwagon_ood.py        --model_path <sft-ckpt>
 ```
 
 ## Data Format Details

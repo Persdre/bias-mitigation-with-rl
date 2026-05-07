@@ -20,10 +20,11 @@ if os.path.exists(bad_symlink) or os.path.islink(bad_symlink):
     except:
         pass
 
-cudnn_lib_path = "# Update this path to your cudnn location"
-current_ld_path = os.environ.get("LD_LIBRARY_PATH", "")
-if cudnn_lib_path not in current_ld_path:
-    os.environ["LD_LIBRARY_PATH"] = f"{cudnn_lib_path}:{current_ld_path}"
+cudnn_lib_path = os.environ.get("CUDNN_LIB_PATH", "")
+if cudnn_lib_path:
+    current_ld_path = os.environ.get("LD_LIBRARY_PATH", "")
+    if cudnn_lib_path not in current_ld_path:
+        os.environ["LD_LIBRARY_PATH"] = f"{cudnn_lib_path}:{current_ld_path}"
 
 from vllm import LLM, SamplingParams
 from tqdm import tqdm

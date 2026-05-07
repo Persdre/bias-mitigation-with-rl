@@ -114,8 +114,7 @@ tests/e2e/toy_examples/deepspeed/synchronous/output.txt
 # vim
 *.swp
 
-# Installer files
-*.sh
+# Installer files (Miniconda/Anaconda installers committed by accident)
 Miniconda*.sh
 Anaconda*.sh
 

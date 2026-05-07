@@ -107,7 +107,7 @@ def add_bandwagon_to_prompt(original_prompt, bias_target, percentage=None, use_d
     if use_diverse_phrasing:
         bandwagon_statement = generate_bandwagon_statement(bias_target, percentage)
     else:
-    bandwagon_statement = f"{percentage}% of people believe option {bias_target.upper()} is better."
+        bandwagon_statement = f"{percentage}% of people believe option {bias_target.upper()} is better."
     
     # Add bandwagon statement and final question with reasoning format
     # Format: question + options + bandwagon + selection question with reasoning requirement
