@@ -1,10 +1,10 @@
-# Epistemic Independence Training (EIT)
+# Treat Bias as Noise: Bias-Robust LLM Reasoning via Reinforcement Learning
 
-**Mitigating Cognitive Biases in LLM Judges via Reinforcement Learning**
+**Official implementation of Epistemic Independence Training (EIT)**
 
 [![License: CC BY 4.0](https://img.shields.io/badge/License-CC%20BY%204.0-lightgrey.svg)](https://creativecommons.org/licenses/by/4.0/)
 
-This repository contains the official implementation of **Epistemic Independence Training (EIT)**, a reinforcement learning framework designed to make LLM judges robust against cognitive biases such as bandwagon bias, authority bias, and other forms of social influence.
+This repository contains the official implementation of **EIT**, a reinforcement learning framework that treats spurious prompt-level cues (bandwagon, authority, distraction, verbosity) as noise to be filtered out, training LLMs to reason robustly under cognitive bias rather than follow surface cues.
 
 <p align="center">
   <img src="pics/framework.jpg" alt="EIT Framework" width="100%">
